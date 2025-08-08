@@ -1,0 +1,170 @@
+*octocode.txt*    Simple yet powerful semantic search for Neovim
+
+                    OCTOCODE.NVIM DOCUMENTATION
+
+==============================================================================
+CONTENTS                                                    *octocode-contents*
+
+1. Introduction ............................ |octocode-introduction|
+2. Installation ............................ |octocode-installation|
+3. Configuration ........................... |octocode-configuration|
+4. Usage ................................... |octocode-usage|
+5. Commands ................................ |octocode-commands|
+6. Keymaps ................................. |octocode-keymaps|
+7. API ..................................... |octocode-api|
+
+==============================================================================
+1. INTRODUCTION                                         *octocode-introduction*
+
+octocode.nvim is a simple yet powerful Neovim plugin that provides semantic
+search capabilities by integrating with the octocode CLI tool. It offers:
+
+• Floating window interface for search queries
+• Multiple search modes (All, Code, Docs, Text)
+• Clickable results with direct file navigation
+• Asynchronous search execution
+• JSON result parsing and formatting
+
+==============================================================================
+2. INSTALLATION                                         *octocode-installation*
+
+Prerequisites:
+• Neovim 0.8+
+• octocode CLI tool installed and available in PATH
+
+Using lazy.nvim: >
+    {
+      "your-username/octocode.nvim",
+      config = function()
+        require("octocode").setup()
+      end,
+    }
+<
+
+Using packer.nvim: >
+    use {
+      "your-username/octocode.nvim",
+      config = function()
+        require("octocode").setup()
+      end,
+    }
+<
+
+Manual installation:
+Clone the repository to your Neovim configuration directory.
+
+==============================================================================
+3. CONFIGURATION                                       *octocode-configuration*
+
+Default configuration: >
+    require("octocode").setup({
+      -- Default search mode
+      default_mode = "All",
+      
+      -- Window configuration
+      window = {
+        width = 0.8,
+        height = 0.6,
+        border = "rounded",
+      },
+      
+      -- Keybindings
+      keymaps = {
+        toggle = "<leader>os",
+        select = "<CR>",
+        close = "<Esc>",
+        mode_all = "a",
+        mode_code = "c", 
+        mode_docs = "d",
+        mode_text = "t",
+      },
+      
+      -- CLI command
+      command = "octocode",
+    })
+<
+
+Configuration options:
+
+*octocode.config.default_mode*
+    Default search mode when opening the interface.
+    Values: "All", "Code", "Docs", "Text"
+    Default: "All"
+
+*octocode.config.window*
+    Window appearance configuration.
+    • width: Float between 0.1 and 1.0 (ratio of screen width)
+    • height: Float between 0.1 and 1.0 (ratio of screen height)
+    • border: Border style ("none", "single", "double", "rounded", etc.)
+
+*octocode.config.keymaps*
+    Key mappings for the plugin interface.
+
+*octocode.config.command*
+    The octocode CLI command name.
+    Default: "octocode"
+
+==============================================================================
+4. USAGE                                                       *octocode-usage*
+
+Basic workflow:
+
+1. Press `<leader>os` (or run `:Octocode`) to open the search interface
+2. Type your search query in the input field
+3. Use mode keys to switch between search modes:
+   • `a` - All (search everything)
+   • `c` - Code (search only code blocks)
+   • `d` - Docs (search only documentation)
+   • `t` - Text (search only text content)
+4. Press `<Enter>` to execute the search
+5. Navigate through results and press `<Enter>` on a result to open the file
+6. Press `<Esc>` to close the interface
+
+Search modes:
+• All: Searches across all content types
+• Code: Focuses on code blocks and functions
+• Docs: Searches documentation and markdown files
+• Text: Searches plain text content
+
+==============================================================================
+5. COMMANDS                                                 *octocode-commands*
+
+*:Octocode*
+    Toggle the octocode search interface.
+
+==============================================================================
+6. KEYMAPS                                                   *octocode-keymaps*
+
+Default keymaps (configurable):
+
+Global:
+  `<leader>os`    Toggle search interface
+
+Search interface:
+  `<Enter>`       Execute search (in input) / Open file (in results)
+  `<Esc>`         Close interface
+  `a`             Switch to All mode
+  `c`             Switch to Code mode
+  `d`             Switch to Docs mode
+  `t`             Switch to Text mode
+
+==============================================================================
+7. API                                                           *octocode-api*
+
+*require("octocode").setup({opts})*
+    Setup the plugin with custom configuration.
+
+*require("octocode.ui").toggle()*
+    Toggle the search interface.
+
+*require("octocode.ui").open()*
+    Open the search interface.
+
+*require("octocode.ui").close()*
+    Close the search interface.
+
+*require("octocode.search").execute(query, mode, results_buf)*
+    Execute a search with the given query and mode.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
