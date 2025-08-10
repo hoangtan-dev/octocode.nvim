@@ -2,6 +2,8 @@
 
 A simple yet powerful Neovim plugin that provides semantic search capabilities by integrating with the octocode CLI tool.
 
+[![asciicast](https://asciinema.org/a/732758.svg)](https://asciinema.org/a/732758)
+
 ![Neovim](https://img.shields.io/badge/Neovim-0.8+-green.svg)
 ![Lua](https://img.shields.io/badge/Made%20with-Lua-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
