@@ -21,7 +21,7 @@ A simple yet powerful Neovim plugin that provides semantic search capabilities b
 ## 📋 Requirements
 
 - Neovim 0.8+
-- `octocode` CLI tool installed and available in PATH
+- [octocode](https://github.com/Muvon/octocode) CLI tool installed and available in PATH
 
 ## 📦 Installation
 
@@ -29,7 +29,7 @@ A simple yet powerful Neovim plugin that provides semantic search capabilities b
 
 ```lua
 {
-  "your-username/octocode.nvim",
+  "Muvon/octocode.nvim",
   config = function()
     require("octocode").setup()
   end,
@@ -40,7 +40,7 @@ A simple yet powerful Neovim plugin that provides semantic search capabilities b
 
 ```lua
 use {
-  "your-username/octocode.nvim",
+  "Muvon/octocode.nvim",
   config = function()
     require("octocode").setup()
   end,

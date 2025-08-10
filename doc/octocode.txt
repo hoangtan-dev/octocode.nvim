@@ -34,7 +34,7 @@ Prerequisites:
 
 Using lazy.nvim: >
     {
-      "your-username/octocode.nvim",
+      "Muvon/octocode.nvim",
       config = function()
         require("octocode").setup()
       end,
@@ -43,7 +43,7 @@ Using lazy.nvim: >
 
 Using packer.nvim: >
     use {
-      "your-username/octocode.nvim",
+      "Muvon/octocode.nvim",
       config = function()
         require("octocode").setup()
       end,
