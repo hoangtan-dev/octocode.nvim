@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.3.0] - 2025-08-10
+
+### 📋 Release Summary
+
+This release introduces an automatic indexing watch process that starts on launch, enhancing real-time content updates (92bde007). Additionally, the usage guide and feature descriptions have been improved for clearer user guidance (1ea44081).
+
+
+### ✨ New Features & Enhancements
+
+- **octocode**: add automatic indexing watch process on startup `92bde007`
+
+### 📚 Documentation & Examples
+
+- **readme**: enhance usage guide and improve feature descriptions `1ea44081`
+
+### 📊 Release Summary
+
+**Total commits**: 2 across 2 categories
+
+✨ **1** new feature - *Enhanced functionality*
+📚 **1** documentation update - *Better developer experience*
+
 All notable changes to this project will be documented in this file.
 
 ## [0.2.0] - 2025-08-10
