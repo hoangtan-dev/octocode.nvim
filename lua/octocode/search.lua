@@ -67,6 +67,43 @@ local function get_file_icon(path, language)
   return "📁"
 end
 
+-- Safe buffer operations with validation and error handling
+local function safe_buf_operation(buf, operation_name, operation_func)
+  if not buf or not vim.api.nvim_buf_is_valid(buf) then
+    notify("Buffer is invalid for " .. operation_name, vim.log.levels.WARN)
+    return false
+  end
+  
+  local ok, result = pcall(operation_func)
+  if not ok then
+    notify("Failed to " .. operation_name .. ": " .. tostring(result), vim.log.levels.ERROR)
+    return false
+  end
+  
+  return true, result
+end
+
+-- Safe buffer line setting
+local function safe_set_buf_lines(buf, start, end_line, strict, lines)
+  return safe_buf_operation(buf, "set buffer lines", function()
+    vim.api.nvim_buf_set_lines(buf, start, end_line, strict, lines)
+  end)
+end
+
+-- Safe buffer option setting
+local function safe_set_buf_option(buf, option, value)
+  return safe_buf_operation(buf, "set buffer option " .. option, function()
+    vim.bo[buf][option] = value
+  end)
+end
+
+-- Safe buffer variable setting
+local function safe_set_buf_var(buf, var, value)
+  return safe_buf_operation(buf, "set buffer variable " .. var, function()
+    vim.b[buf][var] = value
+  end)
+end
+
 -- Execute search using octocode CLI
 function M.execute(query, mode, results_buf)
   -- Build command arguments
@@ -102,12 +139,19 @@ function M.execute(query, mode, results_buf)
     on_stderr = function(_, data)
       if data and #data > 0 then
         vim.schedule(function()
-          M.display_error(results_buf, "Error: " .. table.concat(data, "\n"))
+          if results_buf and vim.api.nvim_buf_is_valid(results_buf) then
+            M.display_error(results_buf, "Error: " .. table.concat(data, "\n"))
+          end
         end)
       end
     end,
     on_exit = function(_, exit_code)
       vim.schedule(function()
+        if not results_buf or not vim.api.nvim_buf_is_valid(results_buf) then
+          notify("Results buffer is no longer valid", vim.log.levels.WARN)
+          return
+        end
+        
         if exit_code == 0 then
           local json_str = table.concat(output, "\n")
           M.parse_and_display(json_str, results_buf)
@@ -125,6 +169,12 @@ end
 
 -- Parse JSON results and display
 function M.parse_and_display(json_str, results_buf)
+  -- Validate buffer first
+  if not results_buf or not vim.api.nvim_buf_is_valid(results_buf) then
+    notify("Results buffer is invalid, cannot display results", vim.log.levels.WARN)
+    return
+  end
+  
   local ok, results = pcall(vim.json.decode, json_str)
   
   if not ok then
@@ -159,9 +209,9 @@ function M.parse_and_display(json_str, results_buf)
       "• Broader or more specific queries"
     }
     
-    vim.bo[results_buf].modifiable = true
-    vim.api.nvim_buf_set_lines(results_buf, 0, -1, false, lines)
-    vim.bo[results_buf].modifiable = false
+    safe_set_buf_option(results_buf, "modifiable", true)
+    safe_set_buf_lines(results_buf, 0, -1, false, lines)
+    safe_set_buf_option(results_buf, "modifiable", false)
     return
   end
   
@@ -339,16 +389,16 @@ function M.parse_and_display(json_str, results_buf)
   end
   
   -- Store file map for navigation (both buffer and global for reliability)
-  vim.b[results_buf].octocode_file_map = file_map
+  safe_set_buf_var(results_buf, "octocode_file_map", file_map)
   _G.octocode_file_map = file_map
   
   -- Display results
-  vim.bo[results_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(results_buf, 0, -1, false, lines)
-  vim.bo[results_buf].modifiable = false
+  safe_set_buf_option(results_buf, "modifiable", true)
+  safe_set_buf_lines(results_buf, 0, -1, false, lines)
+  safe_set_buf_option(results_buf, "modifiable", false)
   
   -- Set syntax highlighting
-  vim.bo[results_buf].filetype = "octocode-results"
+  safe_set_buf_option(results_buf, "filetype", "octocode-results")
 end
 
 -- Display error message
@@ -366,9 +416,9 @@ function M.display_error(results_buf, error_msg)
     "Press <Esc> to close"
   }
   
-  vim.bo[results_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(results_buf, 0, -1, false, lines)
-  vim.bo[results_buf].modifiable = false
+  safe_set_buf_option(results_buf, "modifiable", true)
+  safe_set_buf_lines(results_buf, 0, -1, false, lines)
+  safe_set_buf_option(results_buf, "modifiable", false)
 end
 
 -- Execute search for single window interface
@@ -427,7 +477,7 @@ function M.execute_single_window(query, mode, callback)
           
           -- Store file_map globally and in the UI buffer for file opening
           local ui_buf = _G.octocode_search_buf or vim.api.nvim_get_current_buf()
-          if file_map then
+          if file_map and ui_buf and vim.api.nvim_buf_is_valid(ui_buf) then
             -- Create display-line-to-result mapping accounting for UI header offset
             local display_file_map = {}
             local results_start_line = 9  -- UI header takes 8 lines, results start at line 9
@@ -439,7 +489,7 @@ function M.execute_single_window(query, mode, callback)
             end
             
             _G.octocode_file_map = display_file_map
-            vim.b[ui_buf].octocode_file_map = display_file_map
+            safe_set_buf_var(ui_buf, "octocode_file_map", display_file_map)
           end
           
           callback(results_lines)
@@ -720,8 +770,26 @@ end
 
 -- Open result file at specific location
 function M.open_result(line)
-  -- Get current line number
-  local line_num = vim.api.nvim_win_get_cursor(0)[1]
+  -- Validate current window and buffer
+  local current_win = vim.api.nvim_get_current_win()
+  if not current_win or not vim.api.nvim_win_is_valid(current_win) then
+    notify("❌ Current window is invalid", vim.log.levels.ERROR)
+    return
+  end
+  
+  local current_buf = vim.api.nvim_get_current_buf()
+  if not current_buf or not vim.api.nvim_buf_is_valid(current_buf) then
+    notify("❌ Current buffer is invalid", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Get current line number safely
+  local ok, cursor = pcall(vim.api.nvim_win_get_cursor, current_win)
+  if not ok or not cursor then
+    notify("❌ Failed to get cursor position", vim.log.levels.ERROR)
+    return
+  end
+  local line_num = cursor[1]
   
   -- Try to get file_map
   local file_map = _G.octocode_file_map
@@ -764,11 +832,14 @@ function M.open_result(line)
   
   -- Look for existing file window
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if win ~= current_win then
+    if win ~= current_win and vim.api.nvim_win_is_valid(win) then
       local buf = vim.api.nvim_win_get_buf(win)
-      if vim.bo[buf].buftype == "" then
-        target_win = win
-        break
+      if buf and vim.api.nvim_buf_is_valid(buf) then
+        local ok, buftype = pcall(function() return vim.bo[buf].buftype end)
+        if ok and buftype == "" then
+          target_win = win
+          break
+        end
       end
     end
   end
@@ -783,16 +854,36 @@ function M.open_result(line)
   end
   
   -- Switch to target window and open file
-  vim.api.nvim_set_current_win(target_win)
-  vim.cmd("edit " .. vim.fn.fnameescape(file_info.path))
+  if target_win and vim.api.nvim_win_is_valid(target_win) then
+    local ok = pcall(vim.api.nvim_set_current_win, target_win)
+    if not ok then
+      notify("❌ Failed to switch to target window", vim.log.levels.ERROR)
+      return
+    end
+  else
+    notify("❌ Target window is invalid", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Open file safely
+  local ok, err = pcall(vim.cmd, "edit " .. vim.fn.fnameescape(file_info.path))
+  if not ok then
+    notify(string.format("❌ Failed to open file: %s", err), vim.log.levels.ERROR)
+    return
+  end
   
   -- Jump to line if specified
   local target_line = file_info.start_line or 1
   if target_line > 0 then
-    local total_lines = vim.api.nvim_buf_line_count(0)
-    if target_line <= total_lines then
-      vim.api.nvim_win_set_cursor(0, {target_line, 0})
-      vim.cmd("normal! zz")
+    local current_buf = vim.api.nvim_get_current_buf()
+    if current_buf and vim.api.nvim_buf_is_valid(current_buf) then
+      local total_lines = vim.api.nvim_buf_line_count(current_buf)
+      if target_line <= total_lines then
+        local ok = pcall(vim.api.nvim_win_set_cursor, 0, {target_line, 0})
+        if ok then
+          pcall(vim.cmd, "normal! zz")
+        end
+      end
     end
   end
   
