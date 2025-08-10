@@ -264,7 +264,10 @@ function M.parse_and_display(json_str, results_buf)
         
         -- Show document content with line numbers (same as code)
         if block.content then
-          local content_lines = vim.split(block.content, "\n")
+          -- Combine title and content for proper display
+          local full_content = block.title and (block.title .. "\n" .. block.content) or block.content
+          local content_lines = vim.split(full_content, "\n")
+          -- Use original start_line from API - no adjustments
           local start_line = block.start_line or 1
           
           for j, content_line in ipairs(content_lines) do
@@ -632,7 +635,10 @@ function M.parse_results_for_single_window(json_str)
         
         -- Show document content with line numbers (same as code)
         if block.content then
-          local content_lines = vim.split(block.content, "\n")
+          -- Combine title and content for proper display
+          local full_content = block.title and (block.title .. "\n" .. block.content) or block.content
+          local content_lines = vim.split(full_content, "\n")
+          -- Use original start_line from API - no adjustments
           local start_line = block.start_line or 1
           
           for j, content_line in ipairs(content_lines) do
