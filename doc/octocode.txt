@@ -19,7 +19,7 @@ CONTENTS                                                    *octocode-contents*
 octocode.nvim is a simple yet powerful Neovim plugin that provides semantic
 search capabilities by integrating with the octocode CLI tool. It offers:
 
-• Floating window interface for search queries
+• Single-window split interface (left vsplit) for search queries
 • Multiple search modes (All, Code, Docs, Text)
 • Clickable results with direct file navigation
 • Asynchronous search execution
@@ -68,19 +68,16 @@ Default configuration: >
         border = "rounded",
       },
       
-      -- Keybindings
+      -- Keybindings (defaults created automatically)
       keymaps = {
         toggle = "<leader>os",
-        select = "<CR>",
-        close = "<Esc>",
-        mode_all = "a",
-        mode_code = "c", 
-        mode_docs = "d",
-        mode_text = "t",
       },
       
       -- CLI command
       command = "octocode",
+      
+      -- Notifications
+      silent = false, -- suppress notifications when true
     })
 <
 
@@ -116,9 +113,9 @@ Basic workflow:
    • `c` - Code (search only code blocks)
    • `d` - Docs (search only documentation)
    • `t` - Text (search only text content)
-4. Press `<Enter>` to execute the search
-5. Navigate through results and press `<Enter>` on a result to open the file
-6. Press `<Esc>` to close the interface
+4. Leave insert mode (press `Esc`) to execute the search
+5. Navigate results; press `<Enter>` on a result to open the file
+6. Press `q` to close the interface
 
 Search modes:
 • All: Searches across all content types
@@ -141,12 +138,13 @@ Global:
   `<leader>os`    Toggle search interface
 
 Search interface:
-  `<Enter>`       Execute search (in input) / Open file (in results)
-  `<Esc>`         Close interface
-  `a`             Switch to All mode
-  `c`             Switch to Code mode
-  `d`             Switch to Docs mode
-  `t`             Switch to Text mode
+  `gi`            Jump to input
+  `gr`            Jump to results
+  `ma`/`mc`/`md`/`mt`  Switch modes (All/Code/Docs/Text)
+  `<Enter>`       Open file (on a result)
+  `?`             Help popup
+  `dd`            Clear input line
+  `q`             Close interface
 
 ==============================================================================
 7. API                                                           *octocode-api*

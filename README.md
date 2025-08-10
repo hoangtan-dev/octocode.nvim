@@ -6,15 +6,15 @@ A simple yet powerful Neovim plugin that provides semantic search capabilities b
 
 ![Neovim](https://img.shields.io/badge/Neovim-0.8+-green.svg)
 ![Lua](https://img.shields.io/badge/Made%20with-Lua-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
 ## ✨ Features
 
 - 🔍 **Semantic Search**: Powerful search across your codebase using octocode CLI
-- 🎯 **Multiple Modes**: Search All, Code, Docs, or Text content specifically  
-- 🪟 **Floating Window UI**: Clean, modern interface with floating windows
+- 🎯 **Multiple Modes**: All, Code, Docs, Text
+- 🪟 **Single-Window Split UI**: Clean, focused interface in a left vsplit
 - ⚡ **Async Execution**: Non-blocking search with job control
-- 🎨 **Syntax Highlighting**: Beautiful results display with proper highlighting
+- 🎨 **Syntax Highlighting**: Highlighted results, file icons, and line numbers
 - 🔗 **Clickable Results**: Direct navigation to files and line numbers
 - ⌨️ **Vim-like Keybindings**: Intuitive navigation and mode switching
 
@@ -66,16 +66,13 @@ require("octocode").setup({
   -- Keybindings
   keymaps = {
     toggle = "<leader>os",
-    select = "<CR>",
-    close = "<Esc>",
-    mode_all = "a",
-    mode_code = "c", 
-    mode_docs = "d",
-    mode_text = "t",
   },
   
   -- CLI command
   command = "octocode",
+  
+  -- Notifications
+  silent = false, -- suppress notifications when true
 })
 ```
 
@@ -83,17 +80,12 @@ require("octocode").setup({
 
 ### Basic Workflow
 
-1. **Open Search**: Press `<leader>os` or run `:Octocode`
-2. **Enter Query**: Type your search query
-3. **Select Mode**: Use keys to switch modes:
-   - `a` - **All** (search everything)
-   - `c` - **Code** (search only code blocks)
-   - `d` - **Docs** (search only documentation)
-   - `t` - **Text** (search only text content)
-4. **Execute**: Press `<Enter>` to search
-5. **Navigate**: Use arrow keys to browse results
-6. **Open File**: Press `<Enter>` on a result to open the file
-7. **Close**: Press `<Esc>` to close the interface
+1. Open: `<leader>os` or `:Octocode`
+2. Type your query on the input line
+3. Run search: leave insert mode (press `Esc`) — search auto-executes
+4. Switch modes: `ma` (All), `mc` (Code), `md` (Docs), `mt` (Text)
+5. Navigate results with normal motions; `<Enter>` opens file
+6. Close: `q`
 
 ### Search Modes
 
@@ -117,12 +109,13 @@ error handling patterns
 - `<leader>os` - Toggle search interface
 
 ### Search Interface
-- `<Enter>` - Execute search (input) / Open file (results)
-- `<Esc>` - Close interface
-- `a` - Switch to All mode
-- `c` - Switch to Code mode
-- `d` - Switch to Docs mode
-- `t` - Switch to Text mode
+- `gi` - Jump to input
+- `gr` - Jump to results
+- `ma`/`mc`/`md`/`mt` - Switch modes (All/Code/Docs/Text)
+- `<Enter>` - Open file (on a result); in input it enters insert at end
+- `?` - Help popup
+- `dd` - Clear input line
+- `q` - Close interface
 
 ## 🎨 Screenshots
 
@@ -149,7 +142,7 @@ error handling patterns
 │      ...                                             │
 │                                                      │
 │ Press <Enter> on a result to open the file          │
-│ Press <Esc> to close                                 │
+│ Press q to close                                 │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -195,7 +188,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+Apache License 2.0 — see LICENSE for details.
 
 ## 🙏 Acknowledgments
 
