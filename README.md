@@ -1,6 +1,6 @@
 # octocode.nvim
 
-A simple yet powerful Neovim plugin that provides semantic search capabilities by integrating with the octocode CLI tool.
+🚀 **Intelligent code search for Neovim** - Semantic search that understands your code, powered by the octocode CLI.
 
 [![asciicast](https://asciinema.org/a/732758.svg)](https://asciinema.org/a/732758)
 
@@ -10,18 +10,18 @@ A simple yet powerful Neovim plugin that provides semantic search capabilities b
 
 ## ✨ Features
 
-- 🔍 **Semantic Search**: Powerful search across your codebase using octocode CLI
-- 🎯 **Multiple Modes**: All, Code, Docs, Text
-- 🪟 **Single-Window Split UI**: Clean, focused interface in a left vsplit
-- ⚡ **Async Execution**: Non-blocking search with job control
-- 🎨 **Syntax Highlighting**: Highlighted results, file icons, and line numbers
-- 🔗 **Clickable Results**: Direct navigation to files and line numbers
-- ⌨️ **Vim-like Keybindings**: Intuitive navigation and mode switching
+- 🔍 **Semantic Search**: Natural language queries that understand code context
+- 🎯 **Smart Modes**: Search All, Code only, Documentation, or Text content
+- 🔄 **Auto-indexing**: Automatic background indexing with file watching
+- ⚡ **Instant Results**: Fast, async search with real-time updates
+- 🎨 **Beautiful UI**: Clean split-window interface with syntax highlighting
+- 🔗 **Quick Navigation**: Jump directly to code with clickable results
+- ⌨️ **Vim-native**: Intuitive keybindings that feel right at home
 
 ## 📋 Requirements
 
-- Neovim 0.8+
-- [octocode](https://github.com/Muvon/octocode) CLI tool installed and available in PATH
+- Neovim 0.8+ (0.10+ recommended for best performance)
+- [octocode](https://github.com/Muvon/octocode) CLI tool installed and in PATH
 
 ## 📦 Installation
 
@@ -49,58 +49,89 @@ use {
 
 ## ⚙️ Configuration
 
-Default configuration:
+**Zero configuration needed!** The plugin works out of the box with sensible defaults.
+
+### Optional Customization
 
 ```lua
 require("octocode").setup({
-  -- Default search mode
-  default_mode = "All",
-  
-  -- Window configuration
-  window = {
-    width = 0.8,
-    height = 0.6,
-    border = "rounded",
-  },
-  
-  -- Keybindings
+  -- Change the toggle keybinding (default: <leader>os)
   keymaps = {
     toggle = "<leader>os",
   },
   
-  -- CLI command
+  -- Custom octocode command path (if not in PATH)
   command = "octocode",
   
-  -- Notifications
-  silent = false, -- suppress notifications when true
+  -- Quiet mode - suppress notifications
+  silent = false,
 })
 ```
 
+> **That's it!** No complex configuration needed. The plugin automatically:
+> - Starts background indexing when Neovim opens
+> - Watches for file changes and re-indexes
+> - Cleans up processes when Neovim exits
+
 ## 🚀 Usage
 
-### Basic Workflow
+### 🎯 Quick Start
 
-1. Open: `<leader>os` or `:Octocode`
-2. Type your query on the input line
-3. Run search: leave insert mode (press `Esc`) — search auto-executes
-4. Switch modes: `ma` (All), `mc` (Code), `md` (Docs), `mt` (Text)
-5. Navigate results with normal motions; `<Enter>` opens file
-6. Close: `q`
+1. **Install the plugin** (see Installation section)
+2. **Open Neovim** in your project directory
+3. **Wait a moment** - octocode automatically starts indexing in the background
+4. **Search your code**: Press `<leader>os` or run `:Octocode`
 
-### Search Modes
+> **Note**: The first search might take a moment while initial indexing completes. Subsequent searches are instant!
+
+### 🔄 How It Works
+
+**Automatic & Seamless:**
+
+1. **Plugin loads** → `octocode watch` starts automatically in background
+2. **Files indexed** → Your codebase is analyzed and indexed
+3. **Live updates** → File changes trigger re-indexing automatically  
+4. **Search ready** → Once indexed, searches are lightning fast
+5. **Clean exit** → Process stops automatically when you close Neovim
+
+**First-time setup:**
+- Open Neovim in your project directory
+- Wait ~10-30 seconds for initial indexing (depends on project size)
+- Start searching with `<leader>os`
+
+**Subsequent sessions:**
+- Indexing resumes instantly from where it left off
+- Only changed files are re-indexed
+- Search is available immediately
+
+> **💡 Pro tip:** You can check indexing status by running `ps aux | grep "octocode watch"` in terminal
+
+### 📝 Search Workflow
+
+1. **Open search**: `<leader>os` or `:Octocode`
+2. **Type your query** in natural language
+3. **Auto-search**: Just press `Esc` - search executes automatically
+4. **Switch modes**: `ma` (All), `mc` (Code), `md` (Docs), `mt` (Text)
+5. **Navigate**: Use vim motions, press `<Enter>` to jump to code
+6. **Close**: Press `q`
+
+### 🔍 Search Modes
 
 - **All**: Comprehensive search across all content types
-- **Code**: Focuses on code blocks, functions, and symbols
-- **Docs**: Searches documentation and markdown files
-- **Text**: Searches plain text content
+- **Code**: Focus on functions, classes, and code logic
+- **Docs**: Search documentation, comments, and markdown
+- **Text**: Plain text content and strings
 
-### Example Queries
+### 💡 Example Queries
 
 ```
-training pipeline for lstm
-user authentication flow
-database connection handling
-error handling patterns
+# Natural language works best:
+"user authentication flow"
+"how to connect to database"
+"error handling in payment processing"
+"LSTM training pipeline"
+"websocket connection logic"
+"API rate limiting implementation"
 ```
 
 ## ⌨️ Keymaps
@@ -109,89 +140,139 @@ error handling patterns
 - `<leader>os` - Toggle search interface
 
 ### Search Interface
-- `gi` - Jump to input
+- `gi` - Jump to input line
 - `gr` - Jump to results
-- `ma`/`mc`/`md`/`mt` - Switch modes (All/Code/Docs/Text)
-- `<Enter>` - Open file (on a result); in input it enters insert at end
-- `?` - Help popup
+- `ma` / `mc` / `md` / `mt` - Switch modes (All/Code/Docs/Text)
+- `<Enter>` - Open file at line (when on result)
 - `dd` - Clear input line
-- `q` - Close interface
+- `q` or `<Esc>` - Close interface
+- `?` - Show help (coming soon)
 
-## 🎨 Screenshots
+## 🎨 Interface Preview
 
-*Search Interface*
+*Clean, focused search interface:*
 ```
 ┌─ Search Query [All] ─────────────────────────────────┐
-│ training pipeline for lstm                           │
-│ -- Modes: (a)ll, (c)ode, (d)ocs, (t)ext | Enter to │
+│ user authentication flow                             │
+│ -- Modes: (a)ll (c)ode (d)ocs (t)ext | <Esc> to run │
 └──────────────────────────────────────────────────────┘
-```
 
-*Results Display*
-```
-┌─ Octocode Results ───────────────────────────────────┐
-│ === Octocode Search Results ===                      │
+┌─ Results ────────────────────────────────────────────┐
+│ === Search Results ===                               │
 │                                                      │
 │ 📄 Code Results:                                     │
 │                                                      │
-│   1. src/model/lstm_simple_test.rs:3-12 (0.384)     │
-│      Symbols: test_lstm_train_predict_shape          │
-│      #[tokio::test]                                  │
-│      async fn test_lstm_train_predict_shape() {      │
-│      let config = LSTMConfig::default();             │
-│      ...                                             │
+│   auth/login.rs:45-67 (0.892)                       │
+│   ├─ handle_user_login()                            │
+│   └─ User authentication with JWT tokens            │
 │                                                      │
-│ Press <Enter> on a result to open the file          │
-│ Press q to close                                 │
+│   middleware/auth.rs:12-34 (0.847)                  │
+│   ├─ verify_token()                                 │
+│   └─ Token validation middleware                    │
+│                                                      │
+│ 📚 Documentation:                                    │
+│                                                      │
+│   docs/auth.md:23-45 (0.756)                        │
+│   └─ Authentication flow diagram and setup          │
+│                                                      │
+│ Press <Enter> to jump to code                       │
 └──────────────────────────────────────────────────────┘
 ```
 
-## 🔧 API
+## 🔧 Advanced Configuration
 
 ```lua
--- Setup plugin
-require("octocode").setup(opts)
+require("octocode").setup({
+  -- Keybindings
+  keymaps = {
+    toggle = "<leader>os",  -- Change the toggle key
+  },
+  
+  -- CLI command path (if not in PATH)
+  command = "octocode",  -- or "/path/to/octocode"
+  
+  -- Suppress notifications
+  silent = false,  -- Set to true for quiet mode
+})
+```
 
--- Toggle interface
+## 📚 API Reference
+
+```lua
+-- Open search interface
 require("octocode.ui").toggle()
-
--- Open/close interface
 require("octocode.ui").open()
 require("octocode.ui").close()
 
 -- Execute search programmatically
 require("octocode.search").execute(query, mode, results_buf)
+
+-- Manual control (rarely needed)
+require("octocode.watch").start()  -- Start watch process
+require("octocode.watch").stop()   -- Stop watch process
 ```
+
+## ❓ FAQ
+
+**Q: Do I need to run `octocode index` manually?**  
+A: No! The plugin automatically starts `octocode watch` which handles indexing and updates.
+
+**Q: How do I know when indexing is complete?**  
+A: Try a search - if you get results, you're ready! For large projects, initial indexing may take a minute.
+
+**Q: Can I use this in multiple Neovim instances?**  
+A: Yes! Each instance manages its own indexing process safely.
+
+**Q: What if I don't want auto-indexing?**  
+A: The plugin is designed for auto-indexing. For manual control, use the octocode CLI directly.
+
+**Q: Does this work with large codebases?**  
+A: Yes! octocode is optimized for large projects. Initial indexing may take time, but subsequent searches are fast.
 
 ## 🐛 Troubleshooting
 
-### Command not found
-Ensure `octocode` is installed and available in your PATH:
+### "No results found"
+- **Wait for indexing**: First-time indexing may take a moment
+- **Check octocode**: Run `octocode index` manually to verify it works
+- **Try different queries**: Use natural language descriptions
+
+### "Command not found"
 ```bash
+# Verify octocode is installed:
 which octocode
 octocode --version
+
+# Install if missing:
+cargo install octocode
 ```
 
-### No results
-- Check if you're in a valid project directory
-- Verify the query format
-- Try different search modes
+### Search not working?
+1. **Check if indexing completed**: Look for `octocode watch` process
+2. **Manual index**: Run `octocode index` in your project root
+3. **Verify project**: Ensure you're in a git repository or valid project
 
-### Plugin not loading
-- Ensure Neovim 0.8+
-- Check for plugin conflicts
-- Verify installation path
+### Performance tips
+- **Large projects**: Initial indexing may take time, be patient
+- **Exclude files**: Use `.gitignore` to skip unnecessary files
+- **Update octocode**: Keep the CLI tool updated for best performance
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Feel free to:
+- Report bugs or request features via Issues
+- Submit Pull Requests with improvements
+- Share your experience and feedback
 
 ## 📄 License
 
-Apache License 2.0 — see LICENSE for details.
+Apache License 2.0 — see [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-- Built for integration with the octocode CLI tool
-- Inspired by modern Neovim plugin best practices
-- Uses Neovim's built-in floating window and job control APIs
+- Powered by [octocode](https://github.com/Muvon/octocode) - the intelligent code indexer
+- Built with modern Neovim best practices
+- Inspired by the need for better code search
+
+---
+
+**Made with ❤️ for the Neovim community**
