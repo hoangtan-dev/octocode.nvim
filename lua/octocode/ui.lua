@@ -1,7 +1,14 @@
 -- Beautiful single window UI for octocode search
 
 local M = {}
-local config = require("octocode").config
+
+-- Helper function for conditional notifications
+local function notify(message, level)
+  local config = require("octocode").config
+  if not config.silent then
+    vim.notify(message, level or vim.log.levels.INFO)
+  end
+end
 
 -- State management
 local state = {
@@ -88,10 +95,10 @@ local function protect_input_lines()
       vim.cmd("startinsert")
     elseif cursor_line == state.header_line then
       -- Don't allow deleting header line
-      vim.notify("Cannot delete header line. Use 'gi' to edit search query.", vim.log.levels.WARN)
+      notify("Cannot delete header line. Use 'gi' to edit search query.", vim.log.levels.WARN)
     elseif cursor_line <= state.separator_line then
       -- Don't allow deleting structure lines
-      vim.notify("Cannot delete structure lines. Use 'gi' to edit search query.", vim.log.levels.WARN)
+      notify("Cannot delete structure lines. Use 'gi' to edit search query.", vim.log.levels.WARN)
     else
       -- Normal dd behavior for results section
       vim.cmd("normal! dd")
@@ -113,7 +120,7 @@ local function protect_input_lines()
           vim.api.nvim_win_set_cursor(0, {state.input_line, 0})
           vim.cmd("startinsert")
         else
-          vim.notify("Cannot modify header lines. Use 'gi' to edit search query.", vim.log.levels.WARN)
+          notify("Cannot modify header lines. Use 'gi' to edit search query.", vim.log.levels.WARN)
         end
       else
         -- Normal behavior in results section
@@ -226,22 +233,22 @@ local function setup_keymaps(search_buf)
   -- New mode switching system: m + letter
   vim.keymap.set("n", "ma", function() 
     M.set_mode("All")
-    vim.notify("🎯 Mode: All", vim.log.levels.INFO)
+    notify("🎯 Mode: All", vim.log.levels.INFO)
   end, opts)
   
   vim.keymap.set("n", "mc", function() 
     M.set_mode("Code")
-    vim.notify("📄 Mode: Code", vim.log.levels.INFO)
+    notify("📄 Mode: Code", vim.log.levels.INFO)
   end, opts)
   
   vim.keymap.set("n", "md", function() 
     M.set_mode("Docs")
-    vim.notify("📚 Mode: Docs", vim.log.levels.INFO)
+    notify("📚 Mode: Docs", vim.log.levels.INFO)
   end, opts)
   
   vim.keymap.set("n", "mt", function() 
     M.set_mode("Text")
-    vim.notify("📝 Mode: Text", vim.log.levels.INFO)
+    notify("📝 Mode: Text", vim.log.levels.INFO)
   end, opts)
   
   -- Help popup
@@ -372,11 +379,22 @@ end
 
 -- Open search interface
 function M.open()
-  if state.is_open then
+  -- Check if window is actually valid, not just state flag
+  if state.is_open and state.search_win and vim.api.nvim_win_is_valid(state.search_win) then
+    -- Window exists and is valid, just focus it
+    vim.api.nvim_set_current_win(state.search_win)
+    vim.api.nvim_win_set_cursor(state.search_win, {state.input_line, 0})
     return
   end
   
-  state.current_mode = config.default_mode
+  -- Reset state if window was closed externally
+  if state.is_open and (not state.search_win or not vim.api.nvim_win_is_valid(state.search_win)) then
+    state.is_open = false
+    state.search_win = nil
+    state.search_buf = nil
+  end
+  
+  state.current_mode = require("octocode").config.default_mode
   
   -- Create single window
   state.search_win, state.search_buf = create_search_window()
@@ -392,9 +410,6 @@ function M.open()
   vim.cmd("startinsert")
   
   state.is_open = true
-  
-  -- Welcome message
-  vim.notify("🎯 Octocode Search opened! Type your query and press <Esc> to search.", vim.log.levels.INFO)
 end
 
 -- Close interface
@@ -407,26 +422,27 @@ function M.close()
     vim.api.nvim_set_current_win(state.original_win)
   end
   
-  state = {
-    search_buf = nil,
-    search_win = nil,
-    current_mode = nil,
-    is_open = false,
-    original_win = nil,
-    header_line = 1,
-    input_line = 2,
-    separator_line = 4,
-    results_start_line = 6,
-  }
-  
-  vim.notify("👋 Octocode Search closed", vim.log.levels.INFO)
+  -- Reset state properly
+  state.search_buf = nil
+  state.search_win = nil
+  state.current_mode = nil
+  state.is_open = false
+  state.original_win = nil
+  -- Keep other state properties intact for consistency
 end
 
 -- Toggle interface
 function M.toggle()
-  if state.is_open then
+  -- Check if window is actually valid, not just state flag
+  if state.is_open and state.search_win and vim.api.nvim_win_is_valid(state.search_win) then
     M.close()
   else
+    -- Reset state if window was closed externally
+    if state.is_open and (not state.search_win or not vim.api.nvim_win_is_valid(state.search_win)) then
+      state.is_open = false
+      state.search_win = nil
+      state.search_buf = nil
+    end
     M.open()
   end
 end
@@ -454,7 +470,7 @@ function M.search(query)
     -- Store the search buffer for file_map access
     _G.octocode_search_buf = state.search_buf
     update_display(query, results_lines)
-    vim.notify("✅ Search completed! Found " .. (#results_lines > 10 and "multiple" or "some") .. " results.", vim.log.levels.INFO)
+    notify("✅ Search completed! Found " .. (#results_lines > 10 and "multiple" or "some") .. " results.", vim.log.levels.INFO)
   end)
 end
 

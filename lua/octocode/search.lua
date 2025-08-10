@@ -1,7 +1,14 @@
 -- Search module for octocode CLI integration
 
 local M = {}
-local config = require("octocode").config
+
+-- Helper function for conditional notifications
+local function notify(message, level)
+  local config = require("octocode").config
+  if not config.silent then
+    vim.notify(message, level or vim.log.levels.INFO)
+  end
+end
 
 -- Get file icon based on language/extension
 local function get_file_icon(path, language)
@@ -63,7 +70,7 @@ end
 -- Execute search using octocode CLI
 function M.execute(query, mode, results_buf)
   -- Build command arguments
-  local cmd = { config.command, "search", "--format=json" }
+  local cmd = { require("octocode").config.command, "search", "--format=json" }
   
   -- Add mode-specific arguments
   if mode == "Code" then
@@ -364,7 +371,7 @@ end
 -- Execute search for single window interface
 function M.execute_single_window(query, mode, callback)
   -- Build command arguments
-  local cmd = { config.command, "search", "--format=json" }
+  local cmd = { require("octocode").config.command, "search", "--format=json" }
   
   -- Add mode-specific arguments
   if mode == "Code" then
@@ -718,7 +725,7 @@ function M.open_result(line)
   end
   
   if not file_map then
-    vim.notify("❌ No file information available. Run a search first.", vim.log.levels.ERROR)
+    notify("❌ No file information available. Run a search first.", vim.log.levels.ERROR)
     return
   end
   
@@ -735,13 +742,13 @@ function M.open_result(line)
   end
   
   if not file_info or not file_info.path then
-    vim.notify("❌ No file found for this line. Click on a result entry.", vim.log.levels.WARN)
+    notify("❌ No file found for this line. Click on a result entry.", vim.log.levels.WARN)
     return
   end
   
   -- Validate file exists
   if not vim.fn.filereadable(file_info.path) then
-    vim.notify(string.format("❌ File not found: %s", file_info.path), vim.log.levels.ERROR)
+    notify(string.format("❌ File not found: %s", file_info.path), vim.log.levels.ERROR)
     return
   end
   
@@ -783,7 +790,7 @@ function M.open_result(line)
     end
   end
   
-  vim.notify(string.format("📂 Opened %s at line %d", vim.fn.fnamemodify(file_info.path, ":t"), target_line), vim.log.levels.INFO)
+  notify(string.format("📂 Opened %s at line %d", vim.fn.fnamemodify(file_info.path, ":t"), target_line), vim.log.levels.INFO)
 end
 
 return M

@@ -25,6 +25,8 @@ M.config = {
   },
   -- CLI command
   command = "octocode",
+  -- Silent mode - prevents blocking notifications
+  silent = false,
 }
 
 -- Setup function for user configuration
