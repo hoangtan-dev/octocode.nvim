@@ -27,13 +27,15 @@ M.config = {
   command = "octocode",
   -- Silent mode - prevents blocking notifications
   silent = false,
+
 }
 
 -- Setup function for user configuration
 function M.setup(opts)
+  -- Merge configuration
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
   
-  -- Create user command
+  -- Create user commands
   vim.api.nvim_create_user_command("Octocode", function()
     require("octocode.ui").toggle()
   end, { desc = "Toggle Octocode search panel" })
@@ -42,6 +44,9 @@ function M.setup(opts)
   vim.keymap.set("n", M.config.keymaps.toggle, function()
     require("octocode.ui").toggle()
   end, { desc = "Toggle Octocode search", silent = true })
+  
+  -- Start watch process
+  require("octocode.watch").setup()
 end
 
 return M
