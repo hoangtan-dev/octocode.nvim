@@ -47,6 +47,11 @@ function M.setup(opts)
   
   -- Start watch process
   require("octocode.watch").setup()
+
+  -- Toggle indexing with keybinding
+  vim.keymap.set("n", "<leader>oi", function()
+    require("octocode.watch").toggle()
+  end, { desc = "Toggle Octocode indexing", silent = true })
 end
 
 return M

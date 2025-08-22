@@ -53,6 +53,17 @@ function M.stop()
   return true
 end
 
+-- Toggle watch process
+function M.toggle()
+  if state.is_running then
+    notify("Stopping Octocode indexing...", vim.log.levels.INFO)
+    M.stop()
+  else
+    notify("Starting Octocode indexing...", vim.log.levels.INFO)
+    M.start()
+  end
+end
+
 -- Setup - just start watch on Neovim startup
 function M.setup()
   -- Clean up on exit
@@ -63,11 +74,6 @@ function M.setup()
       end
     end,
   })
-  
-  -- Start watch process immediately
-  vim.defer_fn(function()
-    M.start()
-  end, 100)
 end
 
 return M
